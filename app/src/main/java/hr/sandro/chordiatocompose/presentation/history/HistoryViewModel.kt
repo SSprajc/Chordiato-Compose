@@ -1,6 +1,8 @@
 package hr.sandro.chordiatocompose.presentation.history
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +21,11 @@ class HistoryViewModel @Inject constructor(
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(HistoryState())
-    val state = _state
+    var state by mutableStateOf(HistoryState())
+
+    init {
+        getTracks()
+    }
 
     fun onEvent(event: HistoryEvent) {
         when (event) {
@@ -42,8 +47,7 @@ class HistoryViewModel @Inject constructor(
     fun getTracks() {
         fetchJob?.cancel()
         fetchJob = getSongsUseCase(false).onEach { result ->
-            _state.value = HistoryState(tracks = emptyList())
-            _state.value = HistoryState(tracks = result)
+            state = state.copy(tracks = result)
         }.launchIn(viewModelScope)
     }
 

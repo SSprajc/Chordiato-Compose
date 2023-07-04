@@ -17,10 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import hr.sandro.chordiatocompose.presentation.favourite.FavouritesScreen
 import hr.sandro.chordiatocompose.presentation.history.HistoryScreen
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity() {
             ChordiatoComposeTheme {
                 val navController = rememberNavController()
                 Scaffold(
-                    bottomBar =  {
+                    bottomBar = {
                         BottomNavigationBar(
                             items = listOf(
                                 BottomNavItem(
@@ -72,16 +74,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "sheet") {
-        composable("sheet") {
-            MaterialTheme.colors.onPrimary
-            SheetScreen()
+    NavHost(navController = navController, startDestination = "sheet?link={link}") {
+        composable(
+            route = "sheet?link={link}",
+            arguments = listOf(navArgument("link") {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) { backStackEntry ->
+            Log.d("Args", backStackEntry.arguments?.getString("link").toString())
+            SheetScreen(
+                link = backStackEntry.arguments?.getString("link"),
+                navController = navController
+            )
         }
         composable("history") {
             HistoryScreen()
         }
         composable("favourites") {
-            FavouritesScreen()
+            FavouritesScreen(navController = navController)
         }
     }
 

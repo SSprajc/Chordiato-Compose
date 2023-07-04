@@ -1,5 +1,8 @@
 package hr.sandro.chordiatocompose.presentation.favourite
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,9 +18,8 @@ import javax.inject.Inject
 class FavouritesViewModel @Inject constructor(
     private val getSongsUseCase: GetSongsUseCase,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(FavouritesState())
-    val state = _state.asStateFlow()
 
+    var state by mutableStateOf(FavouritesState())
     init {
         getFavouriteTracks()
     }
@@ -27,7 +29,7 @@ class FavouritesViewModel @Inject constructor(
     private fun getFavouriteTracks() {
         fetchJob?.cancel()
         fetchJob = getSongsUseCase(true).onEach { result ->
-            _state.emit(FavouritesState(tracks = result))
+            state = state.copy(tracks = result)
         }.launchIn(viewModelScope)
 
     }
